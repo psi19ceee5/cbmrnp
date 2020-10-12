@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shader/spacetime.fs.glsl</file>
+        <file>shader/spacetime.vs.glsl</file>
+    </qresource>
+</RCC>
