@@ -6,7 +6,7 @@
 # permitted in any medium without royalty provided the copyright notice and this
 # notice are preserved. This file is offered as-is, without any warranty.
 
-set(PROJECT_NAME helloworld)
+set(PROJECT_NAME cbmrnp)
 
 project(${PROJECT_NAME})
 
