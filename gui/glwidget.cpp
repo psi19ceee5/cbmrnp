@@ -30,7 +30,7 @@ GLWidget::GLWidget() : QOpenGLWidget(static_cast<QWidget*>(0)),//static_cast<QWi
 
     cameraBelow=false;
 
-    _spacetime=std::make_shared<Spacetime>("Spacetime");
+    _spacetime=std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
 }
 
 void GLWidget::show()
@@ -102,9 +102,9 @@ void GLWidget::paintGL()
 
 //default values for camera position
 ivec2 mouse_pos = ivec2(-1.0,-1.0);
-double theta= M_PI_2;
-double phi = 0.0;
-double radius= -15.0;
+double theta= 1.15*M_PI_2;
+double phi = 0.5*M_PI_2;
+double radius= -2.0;
 
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -153,9 +153,9 @@ void GLWidget::animateGL()
 
     // calculate current modelViewMatrix for the default camera
     glm::vec3 camera = glm::vec3( -radius * sin(theta) * sin(phi), radius * cos(theta), radius * sin(theta)* cos(phi));
-    glm::vec3 focus = glm::vec3(0.0f, 5.0f, 0.0f);
+    glm::vec3 focus = glm::vec3(0.0f, -0.2f, 0.0f);
 
-    glm::mat4 modelViewMatrix = glm::lookAt(camera+glm::vec3(0.0f,5.0f,0.0f), focus, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 modelViewMatrix = glm::lookAt(camera, focus, glm::vec3(0.0, 1.0, 0.0));
 
     // update drawables
     _spacetime->update(timeElapsedMs, modelViewMatrix);

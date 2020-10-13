@@ -22,7 +22,7 @@ find_package(Qt5OpenGL 5.4.0 REQUIRED)
 # List your qrc files here #
 # (if you need any)        #
 ############################
-qt5_add_resources (ResourceSources shader.qrc)
+qt5_add_resources (ResourceSources shader.qrc images.qrc)
 
 # Optional libraries
 find_package(GTA QUIET)

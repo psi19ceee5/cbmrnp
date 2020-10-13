@@ -3,6 +3,7 @@
 out vec4 fcolor;
 
 smooth in vec2 st;
+uniform sampler2D texture;
 
 in vec3 pos;
 
@@ -27,7 +28,6 @@ void main(void)
         vec3 Mpos= pos;
 
         vec3 normal = vec3(0,1,0);
-        //vec3 normal = vec3(0,1,0);
         vec3 showerLight= normalize(showerPosition-Mpos);
 
         vec3 view= normalize(-Mpos);
@@ -42,7 +42,7 @@ void main(void)
 
         vec3 spec= ks*Ls*pow(max(dot(r,showerLight),0.0),shininess);
 
-        vec4 texCol = vec4(0,0.5,1,1);
+        vec4 texCol = texture2D(texture, st);
         vec3 color = (ambient+diffuse+spec);
 
         fcolor = (texCol*vec4(color,1));

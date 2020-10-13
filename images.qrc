@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>images/gridlines.png</file>
+        <file>images/testtexture.bmp</file>
+    </qresource>
+</RCC>

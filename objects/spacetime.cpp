@@ -20,7 +20,10 @@
 
 #include "gui/config.h"
 
-Spacetime::Spacetime(std::string name): Drawable(name) {};
+Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(name)
+{
+    _textureLocation=textureLocation;
+}
 
 void Spacetime::init()
 {
@@ -29,7 +32,7 @@ void Spacetime::init()
 
     loadFBO();
 
-    //    loadTexture();
+    loadTexture();
 }
 
 void Spacetime::draw(glm::mat4 projection_matrix) const
@@ -38,7 +41,11 @@ void Spacetime::draw(glm::mat4 projection_matrix) const
     // Load program
     glUseProgram(_program);
 
-    // bin vertex array object
+    // bind texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,textureID);
+
+    // bind vertex array object
     glBindVertexArray(_vertexArrayObject);
 
     // set parameter
@@ -69,7 +76,7 @@ void Spacetime::draw(glm::mat4 projection_matrix) const
     // call draw
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
-    // unbin vertex array object
+    // unbind vertex array object
     glBindVertexArray(0);
 
     // check for errors
@@ -89,20 +96,26 @@ void Spacetime::createObject()
     indices.clear();
 
 
-    float factor = 100;
+    float factor = 1;
 
     positions.push_back(glm::vec3(1,0,1)*factor);    //0
     positions.push_back(glm::vec3(-1,0,1)*factor);   //1
     positions.push_back(glm::vec3(1,0,-1)*factor);   //2
     positions.push_back(glm::vec3(-1,0,-1)*factor);  //3
 
-    indices.push_back(0);
-    indices.push_back(3);
-    indices.push_back(1);
+    texCoords.push_back(glm::vec2(1,1));
+    texCoords.push_back(glm::vec2(0,1));
+    texCoords.push_back(glm::vec2(1,0));
+    texCoords.push_back(glm::vec2(0,0));
 
     indices.push_back(0);
     indices.push_back(2);
+    indices.push_back(1);
+
     indices.push_back(3);
+    indices.push_back(1);
+    indices.push_back(2);
+
 
     glm::vec3 stcolor = glm::vec3(0,0.5,1);
     
@@ -127,14 +140,43 @@ void Spacetime::createObject()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
+    GLuint tex_buffer;
+    glGenBuffers(1,&tex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, texCoords.size()*sizeof (glm::vec2),texCoords.data(),GL_STATIC_DRAW);
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_TRUE,0,0);
+    glEnableVertexAttribArray(1);
+
     // unbind vertex array object
     glBindVertexArray(0);
 
     // delete buffers (the data is stored in the vertex array object)
     glDeleteBuffers(1, &position_buffer);
     glDeleteBuffers(1, &index_buffer);
+    glDeleteBuffers(1,&tex_buffer);
 
     // check for errors
+    VERIFY(CG::checkError());
+}
+
+
+void Spacetime::loadTexture()
+{
+    glGenTextures(1,&textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    Image image(_textureLocation);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(),image.getHeight(),0,GL_RGBA, GL_UNSIGNED_BYTE, image.getData());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
     VERIFY(CG::checkError());
 }
 

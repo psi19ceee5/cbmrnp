@@ -11,7 +11,7 @@
 class Spacetime : public Drawable
 {
 public:
-    Spacetime(std::string name = "SPACETIME");
+    Spacetime(std::string name = "SPACETIME", std::string textureLocation = ":/res/images/gridlines.png");
 
     /**
      * @see Drawable::init()
@@ -50,7 +50,14 @@ protected:
      */
     virtual void createObject() override;
 
-    //everything needed for shadows
+    virtual void loadTexture();
+
+    // everything needed for textures
+    std::string _textureLocation;
+    GLuint textureID;
+
+
+    // everything needed for shadows
     GLuint depthMapFBO;
     GLuint depthMap;
 
