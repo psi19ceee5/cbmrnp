@@ -100,7 +100,7 @@ protected:
      * Hint: You can use the Qt Resource System for the path
      * (e.g. ":/res/images/earth.bmp")
      */
-    virtual GLuint loadTexture(std::string path);
+    virtual GLuint loadTexture();
 
     /**
      * @brief getVertexShader Getter for the vertex shader
@@ -131,6 +131,11 @@ protected:
      * with data.
      */
     virtual void createObject() = 0;
+
+    // everything needed for textures
+    std::string _textureLocation;
+    GLuint textureID;
+
 
 };
 

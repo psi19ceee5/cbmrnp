@@ -51,13 +51,11 @@ std::string Drawable::loadShaderFile(std::string path) const
     return in.readAll().toStdString();
 }
 
-GLuint Drawable::loadTexture(std::string path){
+GLuint Drawable::loadTexture(){
 
-    Image image(path);
+    Image image(_textureLocation);
 
     glActiveTexture(GL_TEXTURE0);
-
-    GLuint textureID;
 
     glGenTextures(1,&textureID);
     glBindTexture(GL_TEXTURE_2D,textureID);
