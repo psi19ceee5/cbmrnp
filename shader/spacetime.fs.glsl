@@ -3,6 +3,7 @@
 out vec4 fcolor;
 
 smooth in vec2 st;
+smooth in vec3 normal;
 uniform sampler2D texture;
 
 in vec3 pos;
@@ -23,28 +24,27 @@ void main(void)
 {
     //lighting
 
-        //sun
-//        vec3 Mpos= vec3((modelview_matrix)*vec4(pos,1));
-        vec3 Mpos= pos;
+    // vec3 Mpos= vec3((modelview_matrix)*vec4(pos,1));
+     vec3 Mpos= pos;
 
-        vec3 normal = vec3(0,1,0);
-        vec3 lightPosition = vec3(1,1,0);
-        vec3 showerLight= normalize(lightPosition-Mpos);
+    // vec3 normal = vec3(0,1,0);
+    vec3 lightPosition = vec3(0, 0.5, 0);
+    vec3 showerLight= normalize(lightPosition-Mpos);
 
-        vec3 view= normalize(-Mpos);
-        vec3 r= (reflect(-view,normal));
+    vec3 view= normalize(-Mpos);
+    vec3 r= (reflect(-view,normal));
 
-        //ambient lighting
-        vec3 ambient= ka*La;
-        //diffuse lighting
-        vec3 diffuse= kd*Ld* max(dot(showerLight,normal),0.0);
+    //ambient lighting
+    vec3 ambient= ka*La;
+    //diffuse lighting
+    vec3 diffuse= kd*Ld* max(dot(showerLight,normal),0.0);
 
-        //specular lighting
+    //specular lighting
 
-        vec3 spec= ks*Ls*pow(max(dot(r,showerLight),0.0),shininess);
+    vec3 spec= ks*Ls*pow(max(dot(r,showerLight),0.0),shininess);
 
-        vec4 texCol = texture2D(texture, st);
-        vec3 color = (ambient+diffuse+spec);
+    vec4 texCol = texture2D(texture, st);
+    vec3 color = (ambient+diffuse+spec);
 
-        fcolor = (texCol*vec4(color,1));
+    fcolor = (texCol*vec4(color,1));
 }

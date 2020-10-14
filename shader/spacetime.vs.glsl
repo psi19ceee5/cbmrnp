@@ -5,14 +5,15 @@ uniform mat4 modelview_matrix;
 
 
 // get position from vertex array object
-in vec3 vpos;
-
-in vec2 texCoords;
+layout(location = 0) in vec3 vpos;
+layout(location = 1) in vec3 vertex_normals;
+layout(location = 2) in vec2 texCoords;
 
 // send color to fragment shader
 //out vec3 vcolor;
 
 smooth out vec2 st;
+smooth out vec3 normal;
 out vec3 pos;
 
 void main(void)
@@ -23,6 +24,8 @@ void main(void)
     // Texture coordinates
     st = texCoords;
 
-    pos=vpos;
+    // normals
+    normal = vertex_normals;
 
+    pos=vpos;
 }

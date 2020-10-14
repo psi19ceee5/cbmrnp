@@ -109,9 +109,10 @@ Spacetime::getFragmentShader() const
 void
 Spacetime::createObject()
 {
-    texCoords.clear();
     positions.clear();
     indices.clear();
+    vertex_normals.clear();
+    texCoords.clear();
 
     scalefactor = 1.0;
     nside = 300;
@@ -134,18 +135,24 @@ Spacetime::createObject()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-
     GLuint index_buffer;
     glGenBuffers(1, &index_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
+    GLuint normal_buffer;
+    glGenBuffers(1, &normal_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
+    glBufferData(GL_ARRAY_BUFFER, vertex_normals.size() * 3 * sizeof(float), vertex_normals.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, 0);
+    glEnableVertexAttribArray(1);
+
     GLuint tex_buffer;
     glGenBuffers(1,&tex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, tex_buffer);
     glBufferData(GL_ARRAY_BUFFER, texCoords.size()*sizeof (glm::vec2),texCoords.data(),GL_STATIC_DRAW);
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_TRUE,0,0);
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_TRUE,0,0);
+    glEnableVertexAttribArray(2);
 
     // unbind vertex array object
     glBindVertexArray(0);
@@ -153,6 +160,7 @@ Spacetime::createObject()
     // delete buffers (the data is stored in the vertex array object)
     glDeleteBuffers(1, &position_buffer);
     glDeleteBuffers(1, &index_buffer);
+    glDeleteBuffers(1, &normal_buffer); // ok to delete?
     glDeleteBuffers(1,&tex_buffer);
 
     // check for errors
@@ -212,6 +220,7 @@ Spacetime::calcPositions()
             xtex = float(i)/float(nside);
 
             ypos = 0.1*sin(xpos/0.1 + (2*3.14/3)*time);
+
             positions.push_back(glm::vec3(xpos, ypos, zpos));
             texCoords.push_back(glm::vec2(xtex, ytex));
 
@@ -227,8 +236,44 @@ Spacetime::calcPositions()
             }
         }
     }
-
     for(auto & pos : positions) pos *= scalefactor;
+
+    // calculation of normals
+    glm::vec3 a_vec, b_vec, c_vec, current_pos;
+    for(int j = 0; j < nside+1; ++j)
+    {
+        for(int i = 0; i < nside+1; ++i)
+        {
+            current_pos = positions[nindex(i, j)];
+
+            if(j < nside && i < nside)
+            {
+                a_vec = positions[nindex(i+1, j)] - current_pos;
+                b_vec = positions[nindex(i, j+1)] - current_pos;
+            }
+
+            if(j == nside && i < nside)
+            {
+                a_vec = positions[nindex(i, j-1)] - current_pos;
+                b_vec = positions[nindex(i+1, j)] - current_pos;
+            }
+
+            if(j < nside && i == nside)
+            {
+                a_vec = positions[nindex(i, j+1)] - current_pos;
+                b_vec = positions[nindex(i-1, j)] - current_pos;
+            }
+
+            if(j == nside && i == nside)
+            {
+                a_vec = positions[nindex(i-1, j)] - current_pos;
+                b_vec = positions[nindex(i, j-1)] - current_pos;
+            }
+
+            c_vec = glm::cross(b_vec, a_vec);
+            vertex_normals.push_back(glm::normalize(c_vec));
+        }
+    }
 }
 
 int

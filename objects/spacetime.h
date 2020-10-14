@@ -60,8 +60,9 @@ protected:
     void calcPositions();
     int nindex(int, int);
 
-    std::vector<unsigned int> indices;
     std::vector<glm::vec3> positions;
+    std::vector<unsigned int> indices;
+    std::vector<glm::vec3> vertex_normals;
     std::vector<glm::vec2> texCoords;
 
     int nside;
