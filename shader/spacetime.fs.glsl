@@ -28,20 +28,20 @@ void main(void)
      vec3 Mpos= pos;
 
     // vec3 normal = vec3(0,1,0);
-    vec3 lightPosition = vec3(0, 0.5, 0);
-    vec3 showerLight= normalize(lightPosition-Mpos);
+    vec3 lightPosition = vec3(0, 0.0, 0);
+    vec3 lightProjection = normalize(lightPosition-Mpos);
 
     vec3 view= normalize(-Mpos);
     vec3 r= (reflect(-view,normal));
 
     //ambient lighting
-    vec3 ambient= ka*La;
+    vec3 ambient = 0.f*ka*La;
     //diffuse lighting
-    vec3 diffuse= kd*Ld* max(dot(showerLight,normal),0.0);
+    vec3 diffuse = kd*Ld* max(dot(lightProjection,normal),0.0);
 
     //specular lighting
 
-    vec3 spec= ks*Ls*pow(max(dot(r,showerLight),0.0),shininess);
+    vec3 spec= ks*Ls*pow(max(dot(r,lightProjection),0.0),shininess);
 
     vec4 texCol = texture2D(texture, st);
     vec3 color = (ambient+diffuse+spec);

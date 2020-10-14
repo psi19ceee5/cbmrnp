@@ -64,11 +64,11 @@ Spacetime::draw(glm::mat4 projection_matrix) const
     glUniform3fv(glGetUniformLocation(_program, "La"), 1, glm::value_ptr(La));
     glm::vec3 Ls(1.0, 1.0, 1.0);
     glUniform3fv(glGetUniformLocation(_program, "Ls"), 1, glm::value_ptr(Ls));
-    glm::vec3 Ld(0.6f);
+    glm::vec3 Ld(1.f);
     glUniform3fv(glGetUniformLocation(_program, "Ld"), 1, glm::value_ptr(Ld));
     float shininess = 2.f;
     glUniform1f(glGetUniformLocation(_program, "shininess"), shininess);
-    glm::vec3 kd(0.9f);
+    glm::vec3 kd(1.f);
     glUniform3fv(glGetUniformLocation(_program, "kd"), 1, glm::value_ptr(kd));
     glm::vec3 ks(.0f);
     glUniform3fv(glGetUniformLocation(_program, "ks"), 1, glm::value_ptr(ks));
@@ -115,7 +115,7 @@ Spacetime::createObject()
     texCoords.clear();
 
     scalefactor = 1.0;
-    nside = 300;
+    nside = 200;
 
     calcPositions();
 
@@ -288,35 +288,50 @@ Spacetime::potential(float xpos, float zpos, float time)
 {
     glm::vec2 rpos = glm::vec2(xpos, zpos);
 
+    float c_light_fraction = 0.99;
     float omega = 4*M_PI_2/5.;
-    float R_N0 = 0.05;
-    float R_N1 = 0.04;
+    float R_N0 = 0.02;
+    float R_N1 = 0.02;
     float gravConst = 1;
-    float density = 200;
-    float separation = 0.7;
+    float density = 2000;
+    float separation = 0.3;
     float GM0 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N0, 3);
     float GM1 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N1, 3);
+    float c_light = omega*separation/(2*c_light_fraction);
 
     glm::vec2 r0 = glm::vec2(sin(omega*time), cos(omega*time));
-    glm::vec2 r1 = 0.5f*glm::vec2(sin(omega*time + 2*M_PI_2), cos(omega*time + 2*M_PI_2));
-
+    glm::vec2 r1 = glm::vec2(sin(omega*time + 2*M_PI_2), cos(omega*time + 2*M_PI_2));
     r0 *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
     r1 *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+
+    float dist0 = glm::length(rpos - r0);
+    float dist1 = glm::length(rpos - r1);
+    float time0 = time - dist0/c_light;
+    float time1 = time - dist1/c_light;
+    glm::vec2 r0_ret = glm::vec2(sin(omega*time0), cos(omega*time0));
+    glm::vec2 r1_ret = glm::vec2(sin(omega*time1 + 2*M_PI_2), cos(omega*time1 + 2*M_PI_2));
+    r0_ret *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+    r1_ret *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+
 
     float potential0;
     float potential1;
 
-    float dist0 = glm::length(rpos - r0);
-    if(dist0 < R_N0)
-        potential0 = 0.5*GM0*std::pow(dist0, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
+    float dist0_ret = glm::length(rpos - r0_ret);
+    if(dist0_ret < R_N0)
+        potential0 = 0.5*GM0*std::pow(dist0_ret, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
     else
-        potential0 = -1*GM0/dist0;
+        potential0 = -1*GM0/dist0_ret;
 
-    float dist1 = glm::length(rpos - r1);
-    if(dist1 < R_N1)
-        potential1 = 0.5*GM1*std::pow(dist1, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
+    float dist1_ret = glm::length(rpos - r1_ret);
+    if(dist1_ret < R_N1)
+        potential1 = 0.5*GM1*std::pow(dist1_ret, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
     else
-        potential1 = -1*GM1/dist1;
+        potential1 = -1*GM1/dist1_ret;
 
-    return potential0 + potential1;
+    float potential = potential0 + potential1;
+
+    // little cheating to increase the amplitude at large distances...
+
+    return potential;
 }
