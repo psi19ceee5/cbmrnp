@@ -219,7 +219,8 @@ Spacetime::calcPositions()
             xpos = -1 + 2*float(i)/float(nside);
             xtex = float(i)/float(nside);
 
-            ypos = 0.1*sin(xpos/0.1 + (2*3.14/3)*time);
+            ypos = potential(xpos, zpos, time);
+//            ypos = 0.1*sin(xpos/0.1 + (2*3.14/3)*time); // testfunction (plane wave)
 
             positions.push_back(glm::vec3(xpos, ypos, zpos));
             texCoords.push_back(glm::vec2(xtex, ytex));
@@ -280,4 +281,42 @@ int
 Spacetime::nindex(int i, int j)
 {
     return i + j*(nside + 1);
+}
+
+float
+Spacetime::potential(float xpos, float zpos, float time)
+{
+    glm::vec2 rpos = glm::vec2(xpos, zpos);
+
+    float omega = 4*M_PI_2/5.;
+    float R_N0 = 0.05;
+    float R_N1 = 0.04;
+    float gravConst = 1;
+    float density = 200;
+    float separation = 0.7;
+    float GM0 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N0, 3);
+    float GM1 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N1, 3);
+
+    glm::vec2 r0 = glm::vec2(sin(omega*time), cos(omega*time));
+    glm::vec2 r1 = 0.5f*glm::vec2(sin(omega*time + 2*M_PI_2), cos(omega*time + 2*M_PI_2));
+
+    r0 *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+    r1 *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+
+    float potential0;
+    float potential1;
+
+    float dist0 = glm::length(rpos - r0);
+    if(dist0 < R_N0)
+        potential0 = 0.5*GM0*std::pow(dist0, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
+    else
+        potential0 = -1*GM0/dist0;
+
+    float dist1 = glm::length(rpos - r1);
+    if(dist1 < R_N1)
+        potential1 = 0.5*GM1*std::pow(dist1, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
+    else
+        potential1 = -1*GM1/dist1;
+
+    return potential0 + potential1;
 }

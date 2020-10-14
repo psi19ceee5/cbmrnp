@@ -60,6 +60,8 @@ protected:
     void calcPositions();
     int nindex(int, int);
 
+    float potential(float, float, float);
+
     std::vector<glm::vec3> positions;
     std::vector<unsigned int> indices;
     std::vector<glm::vec3> vertex_normals;
