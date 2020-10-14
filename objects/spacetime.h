@@ -28,10 +28,6 @@ public:
      */
     virtual void update(float elapsedTimeMs, glm::mat4 modelViewMatrix) override;
 
-
-    std::vector<unsigned int> indices;
-    std::vector<glm::vec3> positions;
-
 protected:
 
 
@@ -50,18 +46,26 @@ protected:
      */
     virtual void createObject() override;
 
-    virtual void loadTexture();
-
-    // everything needed for textures
-    std::string _textureLocation;
-    GLuint textureID;
-
+    /**
+     * @see Drawable::loadTexture()
+     */
+    virtual GLuint loadTexture() override;
 
     // everything needed for shadows
     GLuint depthMapFBO;
     GLuint depthMap;
 
     void loadFBO();
+
+    void calcPositions();
+    int nindex(int, int);
+
+    std::vector<unsigned int> indices;
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec2> texCoords;
+
+    int nside;
+    float scalefactor;
 };
 
 #endif // SPACETIME_H

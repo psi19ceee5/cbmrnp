@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stack>
+#include <cmath>
 
 #include <QFile>
 #include <QTextStream>
@@ -25,9 +26,9 @@ Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(na
     _textureLocation=textureLocation;
 }
 
-void Spacetime::init()
+void
+Spacetime::init()
 {
-
     Drawable::init();
 
     loadFBO();
@@ -35,7 +36,8 @@ void Spacetime::init()
     loadTexture();
 }
 
-void Spacetime::draw(glm::mat4 projection_matrix) const
+void
+Spacetime::draw(glm::mat4 projection_matrix) const
 {
 
     // Load program
@@ -84,41 +86,37 @@ void Spacetime::draw(glm::mat4 projection_matrix) const
 
 }
 
-void Spacetime::update(float elapsedTimeMs, glm::mat4 modelViewMatrix)
+void
+Spacetime::update(float elapsedTimeMs, glm::mat4 modelViewMatrix)
 {
     _modelViewMatrix = modelViewMatrix;
 }
 
-void Spacetime::createObject()
+std::string
+Spacetime::getVertexShader() const
 {
-    std::vector<glm::vec2> texCoords;
+    return Drawable::loadShaderFile(":/shader/spacetime.vs.glsl");
+}
+
+std::string
+Spacetime::getFragmentShader() const
+{
+    return Drawable::loadShaderFile(":/shader/spacetime.fs.glsl");
+}
+
+void
+Spacetime::createObject()
+{
+    texCoords.clear();
     positions.clear();
     indices.clear();
 
+    scalefactor = 1.0;
+    nside = 300;
 
-    float factor = 1;
-
-    positions.push_back(glm::vec3(1,0,1)*factor);    //0
-    positions.push_back(glm::vec3(-1,0,1)*factor);   //1
-    positions.push_back(glm::vec3(1,0,-1)*factor);   //2
-    positions.push_back(glm::vec3(-1,0,-1)*factor);  //3
-
-    texCoords.push_back(glm::vec2(1,1));
-    texCoords.push_back(glm::vec2(0,1));
-    texCoords.push_back(glm::vec2(1,0));
-    texCoords.push_back(glm::vec2(0,0));
-
-    indices.push_back(0);
-    indices.push_back(2);
-    indices.push_back(1);
-
-    indices.push_back(3);
-    indices.push_back(1);
-    indices.push_back(2);
-
+    calcPositions();
 
     glm::vec3 stcolor = glm::vec3(0,0.5,1);
-    
     
     // Set up a vertex array object for the geometry
     if(_vertexArrayObject == 0)
@@ -160,7 +158,8 @@ void Spacetime::createObject()
 }
 
 
-void Spacetime::loadTexture()
+GLuint
+Spacetime::loadTexture()
 {
     glGenTextures(1,&textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -178,10 +177,13 @@ void Spacetime::loadTexture()
     glGenerateMipmap(GL_TEXTURE_2D);
 
     VERIFY(CG::checkError());
+
+    return textureID;
 }
 
 
-void Spacetime::loadFBO()
+void
+Spacetime::loadFBO()
 {
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
@@ -192,12 +194,44 @@ void Spacetime::loadFBO()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-std::string Spacetime::getVertexShader() const
+void
+Spacetime::calcPositions()
 {
-    return Drawable::loadShaderFile(":/shader/spacetime.vs.glsl");
+    float xpos, ypos, zpos;
+    float xtex, ytex;
+    ypos = 0; // for now. later: should be a function of x and z
+    for(int j = 0; j < nside+1; ++j)
+    {
+        zpos = -1 + 2*float(j)/float(nside);
+        ytex = float(j)/float(nside);
+
+        for(int i = 0; i < nside+1; ++i)
+        {
+            xpos = -1 + 2*float(i)/float(nside);
+            xtex = float(i)/float(nside);
+
+            ypos = xpos*zpos;
+            positions.push_back(glm::vec3(xpos, ypos, zpos));
+            texCoords.push_back(glm::vec2(xtex, ytex));
+
+            if(j < nside && i < nside) // define triangles on grid
+            {
+                indices.push_back(nindex(i  ,j  ));
+                indices.push_back(nindex(i  ,j+1));
+                indices.push_back(nindex(i+1,j  ));
+
+                indices.push_back(nindex(i+1,j  ));
+                indices.push_back(nindex(i  ,j+1));
+                indices.push_back(nindex(i+1,j+1));
+            }
+        }
+    }
+
+    for(auto & pos : positions) pos *= scalefactor;
 }
 
-std::string Spacetime::getFragmentShader() const
+int
+Spacetime::nindex(int i, int j)
 {
-    return Drawable::loadShaderFile(":/shader/spacetime.fs.glsl");
+    return i + j*(nside + 1);
 }
