@@ -24,6 +24,7 @@
 Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(name)
 {
     _textureLocation=textureLocation;
+    time = 0.f;
 }
 
 void
@@ -90,6 +91,7 @@ void
 Spacetime::update(float elapsedTimeMs, glm::mat4 modelViewMatrix)
 {
     _modelViewMatrix = modelViewMatrix;
+    time += elapsedTimeMs/1000.;
 }
 
 std::string
@@ -157,7 +159,6 @@ Spacetime::createObject()
     VERIFY(CG::checkError());
 }
 
-
 GLuint
 Spacetime::loadTexture()
 {
@@ -199,7 +200,7 @@ Spacetime::calcPositions()
 {
     float xpos, ypos, zpos;
     float xtex, ytex;
-    ypos = 0; // for now. later: should be a function of x and z
+
     for(int j = 0; j < nside+1; ++j)
     {
         zpos = -1 + 2*float(j)/float(nside);
@@ -210,7 +211,7 @@ Spacetime::calcPositions()
             xpos = -1 + 2*float(i)/float(nside);
             xtex = float(i)/float(nside);
 
-            ypos = xpos*zpos;
+            ypos = 0.1*sin(xpos/0.1 + (2*3.14/3)*time);
             positions.push_back(glm::vec3(xpos, ypos, zpos));
             texCoords.push_back(glm::vec2(xtex, ytex));
 

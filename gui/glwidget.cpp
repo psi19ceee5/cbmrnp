@@ -159,6 +159,7 @@ void GLWidget::animateGL()
 
     // update drawables
     _spacetime->update(timeElapsedMs, modelViewMatrix);
+    _spacetime->recreate();
 
     // update the widget (do not remove this!)
     update();

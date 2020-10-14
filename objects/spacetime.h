@@ -66,6 +66,7 @@ protected:
 
     int nside;
     float scalefactor;
+    float time;
 };
 
 #endif // SPACETIME_H

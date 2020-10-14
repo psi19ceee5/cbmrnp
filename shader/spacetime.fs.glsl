@@ -9,7 +9,7 @@ in vec3 pos;
 
 uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
-uniform vec3 showerPosition;
+//uniform vec3 showerPosition;
 
 uniform vec3 La;
 uniform vec3 Ld;
@@ -28,7 +28,8 @@ void main(void)
         vec3 Mpos= pos;
 
         vec3 normal = vec3(0,1,0);
-        vec3 showerLight= normalize(showerPosition-Mpos);
+        vec3 lightPosition = vec3(1,1,0);
+        vec3 showerLight= normalize(lightPosition-Mpos);
 
         vec3 view= normalize(-Mpos);
         vec3 r= (reflect(-view,normal));
