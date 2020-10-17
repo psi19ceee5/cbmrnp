@@ -60,7 +60,9 @@ protected:
     void calcPositions();
     int nindex(int, int);
 
-    float potential(float, float, float);
+    glm::vec2 trajectory(float&, int);
+    float retardedDistance(glm::vec2&, glm::vec2&, float&, int, int);
+    float potential(float&, float&, float&);
 
     std::vector<glm::vec3> positions;
     std::vector<unsigned int> indices;
@@ -70,6 +72,19 @@ protected:
     int nside;
     float scalefactor;
     float time;
+
+    // physical parameters
+    float
+    c_light,
+    c_light_fraction,
+    omega,
+    R_N0,
+    R_N1,
+    gravConst,
+    density,
+    separation,
+    GM0,
+    GM1;
 };
 
 #endif // SPACETIME_H

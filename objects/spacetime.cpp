@@ -25,6 +25,17 @@ Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(na
 {
     _textureLocation=textureLocation;
     time = 0.f;
+
+    c_light_fraction = 0.95;
+    omega = 4*M_PI_2/5.;
+    R_N0 = 0.02;
+    R_N1 = 0.02;
+    gravConst = 1;
+    density = 500;
+    separation = 0.2;
+    GM0 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N0, 3);
+    GM1 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N1, 3);
+    c_light = omega*separation/(2*c_light_fraction);
 }
 
 void
@@ -283,55 +294,59 @@ Spacetime::nindex(int i, int j)
     return i + j*(nside + 1);
 }
 
+glm::vec2
+Spacetime::trajectory(float&  time, int objectnr)
+{
+    glm::vec2 position = glm::vec2(sin(omega*time + objectnr*2*M_PI_2), cos(omega*time + objectnr*2*M_PI_2));
+
+
+    if(objectnr == 0)
+        position *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+    else if(objectnr == 1)
+        position *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+
+    return position;
+}
+
 float
-Spacetime::potential(float xpos, float zpos, float time)
+Spacetime::retardedDistance(glm::vec2& rpos, glm::vec2& r0, float& time, int objectnr, int iterations)
+{
+    float dist = glm::length(rpos - r0);
+
+    if(iterations-- == 0)
+        return glm::length(rpos - r0);
+
+    float time_ret = time - dist/c_light;
+    glm::vec2 r0_ret = trajectory(time_ret, objectnr);
+
+    dist = retardedDistance(rpos, r0_ret, time, objectnr, iterations); // time_ret?
+}
+
+float
+Spacetime::potential(float& xpos, float& zpos, float& time)
 {
     glm::vec2 rpos = glm::vec2(xpos, zpos);
 
-    float c_light_fraction = 0.99;
-    float omega = 4*M_PI_2/5.;
-    float R_N0 = 0.02;
-    float R_N1 = 0.02;
-    float gravConst = 1;
-    float density = 2000;
-    float separation = 0.3;
-    float GM0 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N0, 3);
-    float GM1 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N1, 3);
-    float c_light = omega*separation/(2*c_light_fraction);
+    glm::vec2 r0 = trajectory(time, 0);
+    glm::vec2 r1 = trajectory(time, 1);
 
-    glm::vec2 r0 = glm::vec2(sin(omega*time), cos(omega*time));
-    glm::vec2 r1 = glm::vec2(sin(omega*time + 2*M_PI_2), cos(omega*time + 2*M_PI_2));
-    r0 *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
-    r1 *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
-
-    float dist0 = glm::length(rpos - r0);
-    float dist1 = glm::length(rpos - r1);
-    float time0 = time - dist0/c_light;
-    float time1 = time - dist1/c_light;
-    glm::vec2 r0_ret = glm::vec2(sin(omega*time0), cos(omega*time0));
-    glm::vec2 r1_ret = glm::vec2(sin(omega*time1 + 2*M_PI_2), cos(omega*time1 + 2*M_PI_2));
-    r0_ret *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
-    r1_ret *= separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
-
+    float dist0_ret = retardedDistance(rpos, r0, time, 0, 2);
+    float dist1_ret = retardedDistance(rpos, r1, time, 1, 2);
 
     float potential0;
     float potential1;
 
-    float dist0_ret = glm::length(rpos - r0_ret);
     if(dist0_ret < R_N0)
         potential0 = 0.5*GM0*std::pow(dist0_ret, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
     else
         potential0 = -1*GM0/dist0_ret;
 
-    float dist1_ret = glm::length(rpos - r1_ret);
     if(dist1_ret < R_N1)
         potential1 = 0.5*GM1*std::pow(dist1_ret, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
     else
         potential1 = -1*GM1/dist1_ret;
 
-    float potential = potential0 + potential1;
-
-    // little cheating to increase the amplitude at large distances...
+    float potential = potential0;
 
     return potential;
 }
