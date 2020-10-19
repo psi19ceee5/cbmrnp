@@ -360,9 +360,6 @@ Spacetime::retardedDistance(glm::vec2& rpos, glm::vec2& r0, int objectnr, int it
     }
     while(abs(helperfunction(delta_t, rpos, objectnr)) > 0.01);
 
-    if(abs(helperfunction(delta_t, rpos, objectnr)) > 0.0001)
-        std::cout << helperfunction(delta_t, rpos, objectnr) << std::endl;
-
     glm::vec2 r0_ret = glm::vec2(trajectory(time - delta_t, objectnr));
     return glm::length(rpos - r0_ret);
 }
