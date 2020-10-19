@@ -26,13 +26,13 @@ Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(na
     _textureLocation=textureLocation;
     time = 0.f;
 
-    c_light_fraction = 0.95;
+    c_light_fraction = 0.8;
     omega = 4*M_PI_2/5.;
     R_N0 = 0.02;
     R_N1 = 0.02;
     gravConst = 1;
     density = 500;
-    separation = 0.2;
+    separation = 0.1;
     GM0 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N0, 3);
     GM1 = gravConst*density*(4./3.)*2*M_PI_2*std::pow(R_N1, 3);
     c_light = omega*separation/(2*c_light_fraction);
@@ -230,7 +230,7 @@ Spacetime::calcPositions()
             xpos = -1 + 2*float(i)/float(nside);
             xtex = float(i)/float(nside);
 
-            ypos = potential(xpos, zpos, time);
+            ypos = potential(xpos, zpos);
 //            ypos = 0.1*sin(xpos/0.1 + (2*3.14/3)*time); // testfunction (plane wave)
 
             positions.push_back(glm::vec3(xpos, ypos, zpos));
@@ -295,10 +295,9 @@ Spacetime::nindex(int i, int j)
 }
 
 glm::vec2
-Spacetime::trajectory(float&  time, int objectnr)
+Spacetime::trajectory(float utime, int objectnr)
 {
-    glm::vec2 position = glm::vec2(sin(omega*time + objectnr*2*M_PI_2), cos(omega*time + objectnr*2*M_PI_2));
-
+    glm::vec2 position = glm::vec2(sin(omega*utime + objectnr*2*M_PI_2), cos(omega*utime + objectnr*2*M_PI_2));
 
     if(objectnr == 0)
         position *= separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
@@ -309,29 +308,75 @@ Spacetime::trajectory(float&  time, int objectnr)
 }
 
 float
-Spacetime::retardedDistance(glm::vec2& rpos, glm::vec2& r0, float& time, int objectnr, int iterations)
+Spacetime::helperfunction(float delta_t, glm::vec2& rpos, int objectnr) // function that satisfies the retardation condition when equal to zero (depends on trajectory)
 {
-    float dist = glm::length(rpos - r0);
+    float rho_N;
+    if(objectnr == 0)
+        rho_N = separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+    else if(objectnr == 1)
+        rho_N = separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
 
-    if(iterations-- == 0)
-        return glm::length(rpos - r0);
+    float phi = omega*(time - delta_t) + objectnr*2*M_PI_2;
 
-    float time_ret = time - dist/c_light;
-    glm::vec2 r0_ret = trajectory(time_ret, objectnr);
-
-    dist = retardedDistance(rpos, r0_ret, time, objectnr, iterations); // time_ret?
+    return c_light_fraction*sqrt(pow(rpos.x,2) + pow(rpos.y,2) + rho_N*rho_N - 2*rho_N*(rpos.x*sin(phi) + rpos.y*cos(phi))) - rho_N*omega*delta_t;
 }
 
 float
-Spacetime::potential(float& xpos, float& zpos, float& time)
+Spacetime::ddt_helpfunc(float delta_t, glm::vec2& rpos, int objectnr) // derivative (d/d(delta_t) of helperfunction
+{
+    float rho_N;
+    if(objectnr == 0)
+        rho_N = separation*(pow(R_N1, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+    else if(objectnr == 1)
+        rho_N = separation*(pow(R_N0, 3)/(pow(R_N0, 3) + pow(R_N1, 3)));
+
+    float phi = omega*(time - delta_t) + objectnr*2*M_PI_2;
+    float result = c_light_fraction*rho_N*omega*(rpos.x*cos(phi) - rpos.y*sin(phi));
+    result /= sqrt(rpos.x*rpos.x +  rpos.y*rpos.y + rho_N*rho_N - 2*rho_N*(rpos.x*sin(phi) + rpos.y*cos(phi)));
+    result -= rho_N*omega;
+
+    return result;
+}
+
+float
+Spacetime::retardedDistance(glm::vec2& rpos, glm::vec2& r0, int objectnr, int iterations)
+{
+    float delta_t_start = glm::length(rpos - r0)/c_light;
+    float delta_t = delta_t_start;
+
+    float a, b;
+
+    int n = 0;
+    do
+    {
+        delta_t = delta_t_start - n*.1;
+        for(int i = 0; i < iterations; ++i)
+        {
+            a = ddt_helpfunc(delta_t, rpos, objectnr);
+            b = helperfunction(delta_t, rpos, objectnr) - a*delta_t;
+            delta_t = -1*b/a;
+        }
+        ++n;
+    }
+    while(abs(helperfunction(delta_t, rpos, objectnr)) > 0.01);
+
+    if(abs(helperfunction(delta_t, rpos, objectnr)) > 0.0001)
+        std::cout << helperfunction(delta_t, rpos, objectnr) << std::endl;
+
+    glm::vec2 r0_ret = glm::vec2(trajectory(time - delta_t, objectnr));
+    return glm::length(rpos - r0_ret);
+}
+
+float
+Spacetime::potential(float xpos, float zpos)
 {
     glm::vec2 rpos = glm::vec2(xpos, zpos);
 
     glm::vec2 r0 = trajectory(time, 0);
     glm::vec2 r1 = trajectory(time, 1);
 
-    float dist0_ret = retardedDistance(rpos, r0, time, 0, 2);
-    float dist1_ret = retardedDistance(rpos, r1, time, 1, 2);
+    float dist0_ret = retardedDistance(rpos, r0, 0, 5);
+    float dist1_ret = retardedDistance(rpos, r1, 1, 5);
 
     float potential0;
     float potential1;
@@ -346,7 +391,7 @@ Spacetime::potential(float& xpos, float& zpos, float& time)
     else
         potential1 = -1*GM1/dist1_ret;
 
-    float potential = potential0;
+    float potential = potential0 + potential1;
 
     return potential;
 }

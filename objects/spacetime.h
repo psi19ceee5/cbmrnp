@@ -60,9 +60,11 @@ protected:
     void calcPositions();
     int nindex(int, int);
 
-    glm::vec2 trajectory(float&, int);
-    float retardedDistance(glm::vec2&, glm::vec2&, float&, int, int);
-    float potential(float&, float&, float&);
+    glm::vec2 trajectory(float, int);
+    float helperfunction(float, glm::vec2&, int);
+    float ddt_helpfunc(float delta_t, glm::vec2&, int objectnr);
+    float retardedDistance(glm::vec2&, glm::vec2&, int, int);
+    float potential(float, float);
 
     std::vector<glm::vec3> positions;
     std::vector<unsigned int> indices;
