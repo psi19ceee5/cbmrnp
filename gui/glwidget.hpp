@@ -13,6 +13,7 @@
  * Forward decleration
  */
 class Spacetime;
+class Skybox;
 
 /**
  * @brief The GLWidget class handling the opengl widget
@@ -30,7 +31,7 @@ private:
     QElapsedTimer _stopWatch;   /**< Measures time between updates */
 
     std::shared_ptr<Spacetime> _spacetime;
-
+    std::shared_ptr<Skybox> _skybox;
 protected:
 
     bool cameraBelow;

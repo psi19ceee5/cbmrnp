@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>shader/spacetime.fs.glsl</file>
         <file>shader/spacetime.vs.glsl</file>
+        <file>shader/skybox.fs.glsl</file>
+        <file>shader/skybox.vs.glsl</file>
     </qresource>
 </RCC>

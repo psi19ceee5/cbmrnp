@@ -43,7 +43,7 @@ add_executable(cbmrnp
     gui/cli.h
 
     objects/drawable.cpp
-#    objects/skybox.cpp
+    objects/skybox.cpp
     objects/spacetime.cpp
 
     image/image.cpp
@@ -51,7 +51,8 @@ add_executable(cbmrnp
 
     shader/spacetime.fs.glsl
     shader/spacetime.vs.glsl
-
+    shader/skybox.fs.glsl
+    shader/skybox.vs.glsl
 )
 
 

@@ -27,7 +27,7 @@ Spacetime::Spacetime(std::string name, std::string textureLocation): Drawable(na
     time = 0.f;
 
     c_light_fraction = 0.8;
-    omega = 4*M_PI_2/5.;
+    omega = 4*M_PI_2/15.;
     R_N0 = 0.02;
     R_N1 = 0.02;
     gravConst = 1;

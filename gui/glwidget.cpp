@@ -13,6 +13,7 @@
 #include "gui/config.h"
 
 #include "objects/spacetime.h"
+#include "objects/skybox.h"
 
 #ifndef M_PI_2
 #define M_PI_2 (3.14159265359f * 0.5f)
@@ -30,7 +31,8 @@ GLWidget::GLWidget() : QOpenGLWidget(static_cast<QWidget*>(0)),//static_cast<QWi
 
     cameraBelow=false;
 
-    _spacetime=std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
+    _skybox    = std::make_shared<Skybox>("Skybox", ":/res/images/stars.bmp");
+    _spacetime = std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
 }
 
 void GLWidget::show()
@@ -59,7 +61,8 @@ void GLWidget::initializeGL()
     // make sure the context is current
     makeCurrent();
 
-    /// Init all drawables here 
+    /// Init all drawables here
+    _skybox->init();
     _spacetime->init();
 }
 
@@ -91,7 +94,7 @@ void GLWidget::paintGL()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-
+    _skybox->draw(projection_matrix);
     _spacetime->draw(projection_matrix);
     
     glEnable(GL_BLEND);
@@ -102,9 +105,10 @@ void GLWidget::paintGL()
 
 //default values for camera position
 ivec2 mouse_pos = ivec2(-1.0,-1.0);
-double theta= 1.15*M_PI_2;
+double theta = 1.15*M_PI_2;
 double phi = 0.5*M_PI_2;
 double radius= -2.0;
+
 
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -158,6 +162,7 @@ void GLWidget::animateGL()
     glm::mat4 modelViewMatrix = glm::lookAt(camera, focus, glm::vec3(0.0, 1.0, 0.0));
 
     // update drawables
+    _skybox->update(timeElapsedMs, modelViewMatrix);
     _spacetime->update(timeElapsedMs, modelViewMatrix);
     _spacetime->recreate();
 
