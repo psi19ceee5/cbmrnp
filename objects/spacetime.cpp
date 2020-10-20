@@ -126,7 +126,7 @@ Spacetime::createObject()
     texCoords.clear();
 
     scalefactor = 1.0;
-    nside = 200;
+    nside = 150;
 
     calcPositions();
 
@@ -379,16 +379,16 @@ Spacetime::potential(float xpos, float zpos)
     float potential1;
 
     if(dist0_ret < R_N0)
-        potential0 = 0.5*GM0*std::pow(dist0_ret, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
+        potential0  = 0.5*GM0*std::pow(dist0_ret, 2)/pow(R_N0, 3) - 1.5*GM0/R_N0;
     else
-        potential0 = -1*GM0/dist0_ret;
+        potential0  = -1*GM0/dist0_ret;
 
     if(dist1_ret < R_N1)
-        potential1 = 0.5*GM1*std::pow(dist1_ret, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
+        potential1  = 0.5*GM1*std::pow(dist1_ret, 2)/pow(R_N1, 3) - 1.5*GM1/R_N1;
     else
-        potential1 = -1*GM1/dist1_ret;
+        potential1  = -1*GM1/dist1_ret;
 
     float potential = potential0 + potential1;
 
-    return potential;
+    return 5*potential*sqrt(xpos*xpos + zpos*zpos);
 }

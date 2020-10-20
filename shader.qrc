@@ -4,5 +4,7 @@
         <file>shader/spacetime.vs.glsl</file>
         <file>shader/skybox.fs.glsl</file>
         <file>shader/skybox.vs.glsl</file>
+        <file>shader/planet.fs.glsl</file>
+        <file>shader/planet.vs.glsl</file>
     </qresource>
 </RCC>

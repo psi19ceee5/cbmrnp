@@ -14,6 +14,7 @@
  */
 class Spacetime;
 class Skybox;
+class Planet;
 
 /**
  * @brief The GLWidget class handling the opengl widget
@@ -32,6 +33,8 @@ private:
 
     std::shared_ptr<Spacetime> _spacetime;
     std::shared_ptr<Skybox> _skybox;
+    std::shared_ptr<Planet> _planet1;
+    std::shared_ptr<Planet> _planet2;
 protected:
 
     bool cameraBelow;

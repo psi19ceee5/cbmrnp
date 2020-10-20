@@ -14,10 +14,13 @@
 
 #include "objects/spacetime.h"
 #include "objects/skybox.h"
+#include "objects/planet.h"
 
 #ifndef M_PI_2
 #define M_PI_2 (3.14159265359f * 0.5f)
 #endif
+
+// rotate around own y-axis i.e. local rotation
 
 using namespace glm;
 
@@ -31,8 +34,13 @@ GLWidget::GLWidget() : QOpenGLWidget(static_cast<QWidget*>(0)),//static_cast<QWi
 
     cameraBelow=false;
 
+    float omega = 4*M_PI_2/15.;
+
     _skybox    = std::make_shared<Skybox>("Skybox", ":/res/images/stars.bmp");
     _spacetime = std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
+                                                  //radius //orbital radius //spin //orbital frequency
+    _planet1   = std::make_shared<Planet>("planet1", 0.02, 0.05, 0., omega, 0.,      ":/res/images/gridlines.png");
+    _planet2   = std::make_shared<Planet>("planet2", 0.02, 0.05, 0., omega, 2*M_PI_2,":/res/images/gridlines.png");
 }
 
 void GLWidget::show()
@@ -64,6 +72,8 @@ void GLWidget::initializeGL()
     /// Init all drawables here
     _skybox->init();
     _spacetime->init();
+    _planet1->init();
+    _planet2->init();
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -96,6 +106,8 @@ void GLWidget::paintGL()
 
     _skybox->draw(projection_matrix);
     _spacetime->draw(projection_matrix);
+    _planet1->draw(projection_matrix);
+    _planet2->draw(projection_matrix);
     
     glEnable(GL_BLEND);
     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -108,8 +120,6 @@ ivec2 mouse_pos = ivec2(-1.0,-1.0);
 double theta = 1.15*M_PI_2;
 double phi = 0.5*M_PI_2;
 double radius= -2.0;
-
-
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
@@ -163,6 +173,8 @@ void GLWidget::animateGL()
 
     // update drawables
     _skybox->update(timeElapsedMs, modelViewMatrix);
+    _planet1->update(timeElapsedMs, modelViewMatrix);
+    _planet2->update(timeElapsedMs, modelViewMatrix);
     _spacetime->update(timeElapsedMs, modelViewMatrix);
     _spacetime->recreate();
 
