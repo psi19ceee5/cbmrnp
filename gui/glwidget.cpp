@@ -39,8 +39,8 @@ GLWidget::GLWidget() : QOpenGLWidget(static_cast<QWidget*>(0)),//static_cast<QWi
     _skybox    = std::make_shared<Skybox>("Skybox", ":/res/images/stars.bmp");
     _spacetime = std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
                                                   //radius //orbital radius //spin //orbital frequency
-    _planet1   = std::make_shared<Planet>("planet1", 0.02, 0.05, 0., omega, 0.,      ":/res/images/gridlines.png");
-    _planet2   = std::make_shared<Planet>("planet2", 0.02, 0.05, 0., omega, 2*M_PI_2,":/res/images/gridlines.png");
+    _planet1   = std::make_shared<Planet>("planet1", 0.02, 0.05, 0., omega, 0.,      ":/res/images/neutronstar.bmp");
+    _planet2   = std::make_shared<Planet>("planet2", 0.02, 0.05, 0., omega, 2*M_PI_2,":/res/images/neutronstar.bmp");
 }
 
 void GLWidget::show()
@@ -84,7 +84,6 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::paintGL()
 {
-
     //change to black background
     glClearColor(0.0f,0.0f,0.0f,0.0f);
 	

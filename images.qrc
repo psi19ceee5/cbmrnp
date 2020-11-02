@@ -2,5 +2,6 @@
     <qresource prefix="/res">
         <file>images/gridlines.png</file>
         <file>images/stars.bmp</file>
+        <file>images/neutronstar.bmp</file>
     </qresource>
 </RCC>

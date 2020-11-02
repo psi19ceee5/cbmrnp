@@ -49,6 +49,8 @@ void Planet::init()
 {
     Drawable::init();
 
+    lightPos = glm::vec3(0.f, 0.f, 0.f);
+
     //load texture
     loadTexture();
 }
@@ -89,19 +91,21 @@ void Planet::draw(glm::mat4 projection_matrix) const
 
     VERIFY(CG::checkError());
 
-    glm::vec3 La(0.6f);
+    glUniform3fv(glGetUniformLocation(_program, "lightPosition"), 1, glm::value_ptr(lightPos));
+
+    glm::vec3 La(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "La"), 1, glm::value_ptr(La));
-    glm::vec3 Ls(1.0, 1.0, 1.0);
+    glm::vec3 Ls(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "Ls"), 1, glm::value_ptr(Ls));
-    glm::vec3 Ld(0.6f);
+    glm::vec3 Ld(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "Ld"), 1, glm::value_ptr(Ld));
-    float shininess = 2.f;
+    float shininess = 1.f;
     glUniform1f(glGetUniformLocation(_program, "shininess"), shininess);
-    glm::vec3 kd(0.6f);
+    glm::vec3 kd(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "kd"), 1, glm::value_ptr(kd));
-    glm::vec3 ks(.4f);
+    glm::vec3 ks(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "ks"), 1, glm::value_ptr(ks));
-    glm::vec3 ka(0.2f);
+    glm::vec3 ka(1.0f);
     glUniform3fv(glGetUniformLocation(_program, "ka"), 1, glm::value_ptr(ka));
 
     // call draw
@@ -298,8 +302,7 @@ void Planet::createObject(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    // Hint: the texture coordinates buffer is missing
-    // fill vertex array object with data
+    // fill texture buffer with data
     GLuint texture_buffer;
     glGenBuffers(1, &texture_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, texture_buffer);

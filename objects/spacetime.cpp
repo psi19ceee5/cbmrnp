@@ -390,5 +390,5 @@ Spacetime::potential(float xpos, float zpos)
 
     float potential = potential0 + potential1;
 
-    return 5*potential*sqrt(xpos*xpos + zpos*zpos);
+    return potential;//*5*sqrt(xpos*xpos + zpos*zpos);
 }

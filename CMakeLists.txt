@@ -15,7 +15,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 #endif()
 
 # Required libraries
-find_package(Qt5OpenGL 5.4.0 REQUIRED)
+#find_package(Qt5OpenGL 5.4.0 REQUIRED)
+find_package(Qt5OpenGL 5.12.8 REQUIRED) #Ubuntu 20.10
 
 #process resource files
 ############################

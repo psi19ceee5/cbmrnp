@@ -78,7 +78,7 @@ protected:
     GLuint textureID;
 
 
-    glm::vec3 sunPos;
+    glm::vec3 lightPos;
 
 
     /**
