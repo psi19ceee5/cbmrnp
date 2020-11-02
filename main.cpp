@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 
     GLWidget glwidget;
     glwidget.resize(1080, 720);
+    //glwidget.resize(1800, 624); // resolution for talk
     glwidget.move(0,1080);
     glwidget.show();
 

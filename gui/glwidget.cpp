@@ -116,8 +116,8 @@ void GLWidget::paintGL()
 
 //default values for camera position
 ivec2 mouse_pos = ivec2(-1.0,-1.0);
-double theta = 1.15*M_PI_2;
-double phi = 0.5*M_PI_2;
+double theta = 1.2*M_PI_2;
+double phi = 0.*M_PI_2;
 double radius= -1.0;
 
 void GLWidget::mousePressEvent(QMouseEvent *event)

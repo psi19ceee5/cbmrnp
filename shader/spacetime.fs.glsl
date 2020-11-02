@@ -46,5 +46,7 @@ void main(void)
     vec4 texCol = texture2D(texture, st);
     vec3 color = (ambient+diffuse+spec);
 
-    fcolor = (texCol*vec4(color,1));
+    float transparency = min(1.f, 4.f - 4.f*sqrt(pos.x*pos.x + pos.z*pos.z));
+
+    fcolor = (texCol*vec4(color, transparency));
 }
