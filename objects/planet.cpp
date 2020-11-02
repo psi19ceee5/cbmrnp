@@ -35,7 +35,7 @@ Planet::Planet(std::string name,
     _distance(distance),
     _orbfreq(orbfreq),
     _orbphase(orbphase),
-    _localRotation(0),
+    _localRotation(orbphase),
     _spin(spin),
     _globalRotation(0)
 {
@@ -132,17 +132,17 @@ void Planet::update(float elapsedTimeMs, glm::mat4 modelViewMatrix)
     _localRotation += time * _spin;
 
     // keep rotation between 0 and 360
-    while(_localRotation >= 2*M_PI_2)
-        _localRotation -= 2*M_PI_2;
+    while(_localRotation >= 4*M_PI_2)
+        _localRotation -= 4*M_PI_2;
     while(_localRotation < 0.0f)
-        _localRotation += 2*M_PI_2;
+        _localRotation += 4*M_PI_2;
 
     _globalRotation += time *_orbfreq;
 
-    while(_globalRotation >= 2*M_PI_2)
-        _globalRotation -= 2*M_PI_2;
+    while(_globalRotation >= 4*M_PI_2)
+        _globalRotation -= 4*M_PI_2;
     while(_globalRotation < 0.0f)
-        _globalRotation += 2*M_PI_2;
+        _globalRotation += 4*M_PI_2;
 
     //transformations
     std::stack<glm::mat4> modelview_stack;
@@ -152,14 +152,13 @@ void Planet::update(float elapsedTimeMs, glm::mat4 modelViewMatrix)
     //global rotation
     modelview_stack.top() = glm::rotate(modelview_stack.top(), _globalRotation, glm::vec3(0,1,0));
 
-
     //translate from origin to position according to accumulated distances from parents
     float distFromOrigin  = _distance;
     glm::vec3 distVector  = glm::vec3(sin(_orbphase), 0, cos(_orbphase))*glm::vec3(distFromOrigin,0,distFromOrigin);
     modelview_stack.top() = glm::translate(modelview_stack.top(), distVector);
 
     // rotate around own y-axis i.e. local rotation
-    modelview_stack.top() = glm::rotate(modelview_stack.top(), glm::radians(_localRotation), glm::vec3(0,1,0));
+    modelview_stack.top() = glm::rotate(modelview_stack.top(), _localRotation, glm::vec3(0,1,0));
 
     _modelViewMatrix = glm::mat4(modelview_stack.top());
 

@@ -39,8 +39,8 @@ GLWidget::GLWidget() : QOpenGLWidget(static_cast<QWidget*>(0)),//static_cast<QWi
     _skybox    = std::make_shared<Skybox>("Skybox", ":/res/images/stars.bmp");
     _spacetime = std::make_shared<Spacetime>("Spacetime", ":/res/images/gridlines.png");
                                                   //radius //orbital radius //spin //orbital frequency
-    _planet1   = std::make_shared<Planet>("planet1", 0.02, 0.05, 0., omega, 0.,      ":/res/images/neutronstar.bmp");
-    _planet2   = std::make_shared<Planet>("planet2", 0.02, 0.05, 0., omega, 2*M_PI_2,":/res/images/neutronstar.bmp");
+    _planet1   = std::make_shared<Planet>("planet1", 0.02, 0.05, 4., omega, 0.,      ":/res/images/neutronstar.bmp");
+    _planet2   = std::make_shared<Planet>("planet2", 0.02, 0.05, 4., omega, 2*M_PI_2,":/res/images/neutronstar.bmp");
 }
 
 void GLWidget::show()
@@ -118,7 +118,7 @@ void GLWidget::paintGL()
 ivec2 mouse_pos = ivec2(-1.0,-1.0);
 double theta = 1.15*M_PI_2;
 double phi = 0.5*M_PI_2;
-double radius= -2.0;
+double radius= -1.0;
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
